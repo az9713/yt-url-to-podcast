@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Anthropic Engineers Just 10x'd Everyone's Claude Code</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; background: #0f172a; color: #e2e8f0; font: 1.05rem/1.65 Georgia, "Iowan Old Style", Palatino, serif; }
+  main { max-width: 42rem; margin: 0 auto; padding: 3rem 1.25rem 4rem; }
+  header p, footer { font-family: "Segoe UI", sans-serif; font-size: 0.85rem; color: #94a3b8; }
+  header p { letter-spacing: 0.02em; }
+  a { color: #2dd4bf; }
+  h1 { font-weight: 600; font-size: 2rem; line-height: 1.2; margin: 0.4rem 0 1rem; }
+  .dek { font-size: 1.15rem; color: #cbd5e1; }
+  h2 { font-size: 1.25rem; margin: 2rem 0 0.5rem; color: #fb923c; }
+  p { color: #e2e8f0; }
+  table { border-collapse: collapse; width: 100%; font: 0.9rem "Segoe UI", sans-serif; margin: 1rem 0; }
+  th, td { border: 1px solid #334155; padding: 0.4rem 0.6rem; text-align: left; background: #1e293b; }
+  footer { margin-top: 3rem; border-top: 1px solid #334155; padding-top: 1rem; }
+</style>
+</head>
+<body>
+<main>
+<header>
+<p>Summary of <a href="https://www.youtube.com/watch?v=oz2CwrPV2Rg">Anthropic Engineers Just 10x'd Everyone's Claude Code</a> · Nate Herk | AI Automation · 12m 22s</p>
+<h1>Anthropic Engineers Just 10x'd Everyone's Claude Code</h1>
+<p class="dek">Anthropic reports that it removed over 80% of the Claude Code system prompt for its newest models with no measurable loss on its evaluations. The video applies that finding to a personal setup of CLAUDE.md files and skills, and shows two audits that find what to cut.</p>
+</header>
+
+<section>
+<h2>The claim</h2>
+<p>The presenter says an Anthropic engineer published an article on engineering for the Claude 5 generation of models. Per the video, the team deleted more than 80% of the Claude Code system prompt for Opus 5, Fable 5 and 5.1, and later models, and saw no measurable loss on its evaluations. The presenter's reading is that the older advice, to load Claude with as much context as possible, now slows the model down.</p>
+<p>He ties this to a remark by Boris Cherny, who created Claude Code: about every six months, delete all of your skills. The mechanism he describes is rule drift. Claude makes a mistake, you add a rule, and months later the rule exists in CLAUDE.md, in a skill, and in a slightly different copy elsewhere, while the model has been upgraded and no longer needs it.</p>
+</section>
+
+<section>
+<h2>Evidence cited</h2>
+<table>
+<tr><th>Item</th><th>Figure</th></tr>
+<tr><td>System prompt removed (Anthropic, newest models)</td><td>Over 80%, no measurable loss on its evaluations</td></tr>
+<tr><td>2025 paper, five models, math / question answering / coding</td><td>Performance fell as input grew, by 13.9% to 85% depending on model and task, even when the model could retrieve the relevant information</td></tr>
+<tr><td>Anthropic: load MCP tool definitions only when needed</td><td>85% fewer tokens in its example</td></tr>
+<tr><td>MCP evaluation score, Opus 4</td><td>49% to 74%</td></tr>
+<tr><td>MCP evaluation score, Opus 4.5</td><td>79.5% to 88.1%</td></tr>
+</table>
+<p>The presenter adds caveats. The paper tested older models in controlled experiments, so its percentages do not predict what happens when you trim your own CLAUDE.md. The MCP result is stronger support, because Claude kept access to the tools and only stopped loading all their instructions up front. Anthropic's applied AI team also says "minimal" does not mean "short": a detail the model needs stays in.</p>
+<p>His own rule of thumb: the best context is the smallest amount that gets the highest quality at the lowest cost. One example of an old rule that Anthropic replaced: a hard cap on code comments gave way to "follow the style of the surrounding code."</p>
+</section>
+
+<section>
+<h2>The presenter's experiment</h2>
+<p>He duplicated his personal AI operating system and removed CLAUDE.md and the skills in the copy. Both versions turned an interview with Boris Cherny into a student resource guide. The full setup produced the more polished document, with his branding, heading and links. The stripped version looked plainer but organized the interview into ideas, added timestamps, and read as a better guide.</p>
+<p>His conclusion is to keep the look in a skill (header, font, footer, logos) and give the model only the intent for the content. His old skill contained guardrails written for Opus 4, and they confined a model that no longer needed them. He compares this to handing an experienced designer a first-presentation checklist.</p>
+<p><strong>Keep:</strong> what Claude cannot infer or look up, such as voice, goals, audience, how the business works, and the reason behind a request. <strong>Cut:</strong> facts it can look up, such as a long folder listing; the same instruction repeated in several places; and procedures that apply to one task, which can load only when that task runs. CLAUDE.md stays as a starting point: what the project is for, known gotchas, and pointers to deeper instructions.</p>
+</section>
+
+<section>
+<h2>Audit 1: /doctor</h2>
+<p>Running /doctor in a new Claude Code session checks skills, memory, plugins, settings and installation. The presenter reports these results from his own setup:</p>
+<table>
+<tr><th>Finding</th><th>Detail</th></tr>
+<tr><td>Skill table</td><td>Install location, recorded uses since install, estimated tokens for the listing (the YAML front matter only). Two examples: 111 and 103 tokens, both with zero uses.</td></tr>
+<tr><td>Unused skills</td><td>18 older skills with no recorded use. Skills created a few days earlier were kept.</td></tr>
+<tr><td>Usage evidence</td><td>50 recent sessions, lifetime counters over 252 startups, skill and plugin dispatches across 223 transcripts</td></tr>
+<tr><td>Duplication</td><td>About 2,250 characters of cuts, estimated saving 563 tokens. The project map repeated the routing map.</td></tr>
+<tr><td>Memory sources</td><td>Project CLAUDE.md, user-wide instructions, auto-memory index, CLAUDE.local.md (an empty template, about 35 tokens)</td></tr>
+<tr><td>Hidden cost</td><td>A CLAUDE.md from a separate video project in a desktop folder loaded into this setup: about 2,000 tokens</td></tr>
+<tr><td>Broken skills</td><td>Two: one with a wrong file name, one with broken front matter, so Claude never saw its description</td></tr>
+</table>
+<p>He still reviews the list before deleting, since a skill may be used from another tool. /doctor also checks automatic updates, auto mode, permissions and hooks, and offers to apply fixes.</p>
+</section>
+
+<section>
+<h2>Audit 2: a workflow prompt</h2>
+<p>His prompt: "Audit this repo and show me the smallest change that would make the path from a raw YouTube idea to a filming ready script faster. Use the systems already here. Cite the exact files you would reuse and do not edit anything yet."</p>
+<p>Claude mapped idea, research, outline, script and teleprompter file. It found a handover gap. The outline skill could gather facts but did not require saving the evidence in a file the script skill reads, and the script skill had a hard rule to verify facts again. The audit counted 25 video folders with a script and only three with a file named sources.md. The presenter notes this shows an inconsistent handover and does not prove the other videos lacked research. Claude proposed three edits across two skills, and he approved them.</p>
+</section>
+
+<section>
+<h2>Cadence and automation</h2>
+<p>He suggests running such audits monthly if the setup changes often, quarterly if it is stable, and each time you switch to a new model, since each model reads settings, skills and instruction files a little differently. Once the audits are trusted, a scheduled local task in the Claude desktop app could run /doctor monthly and leave recommendations to approve or deny. His aim is a self-cleaning AI operating system, because human consistency is the weak point, with team syncing as the next step.</p>
+</section>
+
+<section>
+<h2>Notes on the source</h2>
+<p>The video contains a sponsor segment for Hyper Agent, a tool for per-client agent workspaces, and a promotion for the presenter's free community. Figures above are the presenter's statements from the video's auto-generated captions, which misspell several names. They were not checked against the Anthropic article, the 2025 paper or the presenter's files.</p>
+</section>
+
+<footer>
+<p>Source: <a href="https://www.youtube.com/watch?v=oz2CwrPV2Rg">https://www.youtube.com/watch?v=oz2CwrPV2Rg</a>, channel Nate Herk | AI Automation. This page is a summary written by an AI model. The video belongs to its creator; watch the original for the full content.</p>
+</footer>
+</main>
+</body>
+</html>

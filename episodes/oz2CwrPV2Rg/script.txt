@@ -1,0 +1,47 @@
+This is a retelling of a YouTube video called "Anthropic Engineers Just 10x'd Everyone's Claude Code," from the channel Nate Herk, AI Automation. I am a synthetic voice, and what follows is my own account of the video, not the creator's words.
+
+--- chapter: the big claim ---
+
+The video starts with a surprising report. An engineer at Anthropic wrote that the team deleted more than eighty percent of the system prompt in Claude Code, for its newest models, and found no measurable drop on their own evaluations.
+
+The presenter reads this as a reversal. For a long time, people were told to give Claude as much context as possible. Now he argues that most of that extra material slows the model's thinking down.
+
+--- chapter: why old rules pile up ---
+
+He explains how a setup gets heavy. Claude makes a mistake, so you add a rule. A few months later the same rule sits in your CLAUDE dot M D file, again in a skill, and once more in a slightly different form somewhere else. Meanwhile you upgraded the model, and it may not need that rule anymore.
+
+He links this to a remark from Boris Cherny, who created Claude Code. About every six months, he says, you should delete all of your skills. One example from the Anthropic article is code comments. An old rule capped how much Claude could write, even where a project needed more explanation. The replacement just says to match the style of the surrounding code.
+
+--- chapter: the evidence ---
+
+Then the presenter gives his rule of thumb. The best context is the smallest amount that still gets top quality at the lowest cost. He stresses that smallest does not mean shortest. If the model needs a detail, it stays.
+
+He cites two bodies of evidence, with care. A paper from 2025 tested five models on math, question answering and coding. Longer input made results worse, by anywhere from about fourteen percent to eighty-five percent, even when the models could find the relevant facts. He warns that those were older models in controlled tests, so the numbers do not tell you what happens to your own files.
+
+The second result is closer to real use. Anthropic loaded tool definitions only when they were needed. Token use fell eighty-five percent in their example. Scores on their tool benchmark rose from forty-nine to seventy-four percent for Opus 4, and from seventy-nine and a half to eighty-eight percent for Opus 4.5. Claude kept access to the tools. It simply stopped carrying all their instructions up front.
+
+--- chapter: the interview experiment ---
+
+Next, he describes a test on his own setup. He copied his personal AI operating system, removed the CLAUDE file and the skills, and gave both copies the same job: turn an interview with Boris Cherny into a student guide.
+
+The full version looked better, with his branding and links. The stripped version looked messier, but it grouped the interview into ideas, added timestamps, and felt like a stronger guide. His conclusion is to keep the branding in a skill and let the model decide the structure of the content. His old guardrails were written for Opus 4, and they boxed in a more capable model. He compares it to giving a skilled designer the checklist you would give a child making a first presentation.
+
+What should stay? Things Claude cannot work out or look up: your voice, goals, audience, how your business runs, and why you want something. What should go? Facts it can look up, instructions repeated in several places, and long procedures that matter for only one task, like video editing, which can load only when you edit video.
+
+--- chapter: the doctor audit ---
+
+Now the practical part. He runs the slash doctor command in a fresh Claude Code session. It lists each skill, where it is installed, how often it was used, and a token estimate for its listing. Two skills cost about a hundred tokens each and had never been used.
+
+The report flagged eighteen older skills with no recorded use, but spared the ones made days earlier. It based this on fifty recent sessions, counters across two hundred fifty-two startups, and two hundred twenty-three transcripts. It found duplicate text worth about twenty-two hundred fifty characters, or roughly five hundred sixty-three tokens. It also found a CLAUDE file from a different video project, in a desktop folder, loading about two thousand tokens that he did not know he was paying for. Two skills were also broken: a misnamed file in one, and a malformed description block in the other, which left that skill invisible to Claude. He still reviews the list before deleting anything, because he might use a skill from another tool.
+
+--- chapter: the workflow audit ---
+
+Then he asks Claude to audit his script-writing workflow, with one instruction: find the smallest change that speeds up the path from a YouTube idea to a script ready to film, name the files, and change nothing yet.
+
+Claude found a gap between two skills. The outline step could collect facts but did not have to save the evidence. The script step had a strict rule to verify everything again. Of twenty-five video folders with a script, only three had a sources file. He notes that this does not mean the others had no research, only that the handover was inconsistent. The fix Claude suggested was three small edits spread over two skills. He said yes.
+
+--- chapter: making it routine ---
+
+He finishes with a schedule. Run this kind of audit monthly if you change your setup often, quarterly if it is stable, and every time you move to a new model, since each model reads your instructions a little differently. Once you trust the audits, a scheduled task in the Claude desktop app could run the doctor each month and leave you suggestions to approve or reject. His goal is a setup that cleans itself, because people forget to update and delete things.
+
+Along the way there is a sponsor message for Hyper Agent and an invitation to his free community. That was the retelling of Nate Herk's video. Watch the original for his screen demos, and check the figures yourself.

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Training Your Own Embedding Model Is Not As Hard As You Think</title>
+<style>
+  :root { color-scheme: light; }
+  body { margin: 0; background: #f4f1ea; color: #1c1915; font: 1.05rem/1.65 Georgia, "Iowan Old Style", Palatino, serif; }
+  main { max-width: 40rem; margin: 0 auto; padding: 3rem 1.25rem 4rem; }
+  header p, footer { font-family: "Segoe UI", sans-serif; font-size: 0.85rem; color: #5c564c; }
+  header p { letter-spacing: 0.04em; text-transform: uppercase; }
+  a { color: #1f4d3a; }
+  h1 { font-weight: 600; font-size: 2rem; line-height: 1.2; margin: 0.4rem 0 1rem; }
+  .dek { font-size: 1.15rem; }
+  h2 { font-size: 1.25rem; margin: 2rem 0 0.5rem; }
+  footer { margin-top: 3rem; }
+</style>
+</head>
+<body>
+<main>
+<header>
+<p>Summary of <a href="https://www.youtube.com/watch?v=S7tFyREI19I">Training Your Own Embedding Model Is Not As Hard As You Think</a> · Prompt Engineering</p>
+<h1>Training Your Own Embedding Model Is Not As Hard As You Think</h1>
+<p class="dek">Fine-tuning an open multimodal embedding model like Gemma 2 on your own data can significantly improve retrieval performance with just a few minutes of training, though it may affect general capabilities.</p>
+</header>
+<section>
+<h2>Introduction to Fine-Tuning Embedding Models</h2>
+<p>Embedding Gemma 2 is a powerful open model designed for multimodal retrieval tasks. Unlike off-the-shelf models that only understand general data, fine-tuning Gemma 2 on your own documents, product names, or sounds allows it to better capture specific information relevant to your use case.</p>
+</section>
+<section>
+<h2>Fine-Tuning Demo and Goals</h2>
+<p>A demonstration involved fine-tuning Gemma 2 on transcripts from the creator's YouTube channel, enabling the model to return exact video moments with clickable timestamps in response to questions.</p>
+<p>The main goal was to verify if a few minutes of fine-tuning can improve model performance on custom data without degrading its existing capabilities.</p>
+</section>
+<section>
+<h2>Differences Between Fine-Tuning LLMs and Embedding Models</h2>
+<p>Large Language Models (LLMs) learn to produce exact text outputs, while embedding models convert inputs into vector representations (embeddings) where semantic relationships matter more than exact outputs.</p>
+<p>Training data for embedding models consists of pairs, such as a customer question and a relevant passage, without needing explicit negative labels. The model learns by bringing related pairs closer in embedding space and pushing unrelated pairs apart.</p>
+</section>
+<section>
+<h2>Training Methodology and Batch Sampling</h2>
+<p>Training uses batches (for example, 32 pairs), where each question's correct passage is the positive example and all other passages in the batch serve as negatives, removing the need for manual negative labeling.</p>
+<p>A challenge arises when duplicate passages appear in the same batch, causing the model to mistakenly treat correct answers as negatives.</p>
+<p>This is resolved by using a batch sampler that avoids duplicates within the same batch, known as the 'no duplicate sampler' in sentence transformers.</p>
+</section>
+<section>
+<h2>Prompt Format and Fine-Tuning Technique</h2>
+<p>Embedding Gemma 2 requires a short task prompt before search queries and documents; it is crucial that training and production prompts match exactly for consistent performance.</p>
+<p>Fine-tuning is performed using LoRA (Low-Rank Adaptation) adapters, which are small trainable matrices added to the frozen original model weights. This approach updates less than 2% of the weights, enabling fast and lightweight training.</p>
+</section>
+<section>
+<h2>Multimodal Impact and Evaluation</h2>
+<p>Gemma 2 shares a backbone architecture for text, images, video, and audio modalities. Fine-tuning on one modality, such as audio, can affect others, necessitating careful testing for cross-modal impacts.</p>
+<p>Training loss reduction indicates improvement on training examples only. To avoid overfitting, evaluation uses a test set split by source (e.g., different articles or videos) to ensure no overlap.</p>
+</section>
+<section>
+<h2>Example 1: Everyday Sounds Classification</h2>
+<p>Using the ESC 50 dataset containing 50 short sound clips (e.g., dog barking, rain, chainsaw), training pairs were created pairing label sentences with audio clips.</p>
+<p>Without the no duplicate sampler, multiple identical labels appeared per batch, causing training difficulties.</p>
+<p>Training the audio encoder with LoRA took approximately 7.5 minutes and improved accuracy from about 25% to 66% on unseen clips.</p>
+<p>Some sounds, like brushing teeth, were almost always correctly identified after training.</p>
+<p>The model learned specific labels rather than general audio understanding; when 10 sounds were excluded from training, no improvement was observed on those unseen sounds.</p>
+<p>Impact on other modalities showed photo and voice search remained stable, but journal text search accuracy dropped by about 4 points.</p>
+<p>An initial drop in voice search accuracy to near zero was traced to a processor issue that cut audio clips too short and was fixed by reusing the base model processor.</p>
+</section>
+<section>
+<h2>Example 2: Text Search on YouTube Transcripts</h2>
+<p>Text search was fine-tuned on 120 YouTube video transcripts segmented into passages.</p>
+<p>Question-passage pairs were generated using Gemini 3.8 to create questions for each passage.</p>
+<p>Test data was split by video to avoid overlap between training and testing.</p>
+<p>Before training, the model returned correct passages first about 66% of the time; after under 3 minutes of training, this improved to approximately 75%.</p>
+<p>General text search performance again dropped by about 4 points after fine-tuning.</p>
+</section>
+<section>
+<h2>Summary and Recommendations</h2>
+<p>A few minutes of fine-tuning can improve model performance on your own data, but the model primarily learns your specific labels rather than general skills, and some general text search quality may decline.</p>
+<p>Recommendations for fine-tuning Gemma 2 include: preparing data as pairs while avoiding duplicates in batches, testing on unseen data split by source, and monitoring effects on other modalities due to the shared backbone.</p>
+<p>Users are encouraged to share their experiences with fine-tuning embedding models in the comments section.</p>
+<p>The video description contains links to resources and the notebook demo running on an A100 GPU in Colab.</p>
+</section>
+<footer>
+<p>Publish this episode only if you have the rights to the source video.</p>
+<p>The audio episode is a separate spoken retelling. It is not a reading of this page.</p>
+</footer>
+</main>
+</body>
+</html>

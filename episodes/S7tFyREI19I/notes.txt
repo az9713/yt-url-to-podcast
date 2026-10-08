@@ -1,0 +1,35 @@
+- Embedding Gemma 2 is a strong open multimodal retrieval model that can be fine-tuned on your own data, improving performance on specific documents, product names, or sounds relevant to your application.
+- Demo: Fine-tuned Gemma 2 on transcripts from the creator's YouTube channel; it returns exact video moments with clickable timestamps in response to questions.
+- Question addressed: Can a few minutes of fine-tuning noticeably improve the model on your own data without harming existing capabilities?
+- Difference from LLM fine-tuning: Embedding models output vectors (embeddings) rather than text, so training targets are not exact outputs but relationships—pairs of inputs that should be close in embedding space.
+- Training data consists of pairs (e.g., customer question and relevant passage) without needing labeled wrong answers.
+- During training, a batch of pairs is used; for each question, its paired passage is the positive example, other passages in the batch serve as negative examples automatically.
+- This approach is known as multiple negatives ranking loss (used in sentence transformers and CLIP).
+- Issue: If duplicate passages appear in the same batch (e.g., two customers ask about the same thing), the model mistakenly treats a correct passage as wrong. The fix is a "no duplicate sampler" that prevents duplicate texts in one batch.
+- Prompt format matters: Embedding Gemma 2 expects a short task prompt before the search query and documents in title and text format; training and production prompts must match exactly.
+- Fine-tuning uses LoRA adapters—small trainable matrices added to frozen model weights—making training fast and requiring saving only a small adapter file (~2% of weights).
+- Gemma 2 uses a shared backbone for text, images, video, and audio; fine-tuning on one modality affects others.
+- Evaluation: Training loss alone is insufficient; test on unseen questions split by source (e.g., different articles or videos) to avoid overlap and overfitting.
+- Example 1: Fine-tuning on ESC-50 dataset (50 everyday sounds, e.g., dog barking, chainsaw).
+  - Training pairs: label sentence ("sound of a chainsaw") and audio clip.
+  - Without fine-tuning, accuracy was ~25%; after 7.5 minutes of LoRA training on A100 GPU, accuracy on unseen clips rose to ~66%.
+  - Some sounds (e.g., brushing teeth) improved to near-perfect identification.
+- The model learns labels it is trained on, not general hearing ability; sounds not in training data did not improve.
+- Impact on other modalities:
+  - Photo and video search performance unchanged.
+  - Journal text search dropped by about 4 points, showing some cost to shared backbone fine-tuning.
+- Issue found: When loading adapters, audio processor sometimes incorrectly truncated clips, causing performance drop; fixed by reusing base model processor.
+- Example 2: Fine-tuning on 120 YouTube video transcripts.
+  - Created question-passage pairs using Gemini 3.8 to generate viewer-style questions.
+  - Split data by video to ensure test questions were unseen.
+  - Before fine-tuning, correct passages returned first ~66% of the time; after under 3 minutes of training, improved to ~75%.
+  - General text search again dropped by ~4 points.
+- Summary:
+  - Few minutes of fine-tuning improves performance on specific sounds and video transcripts.
+  - Model learns labels, not general skills; unseen labels do not improve.
+  - Fine-tuning slightly reduces general text search quality due to shared backbone.
+- Recommendations for fine-tuning Gemini 2:
+  1. Prepare data as pairs and avoid duplicates in batches.
+  2. Test on unseen data split by source.
+  3. Monitor changes in other modalities after fine-tuning.
+- The creator invites viewers to share their fine-tuning experiences and provides links in the video description.

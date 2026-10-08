@@ -1,0 +1,53 @@
+The video is called "Training Your Own Embedding Model Is Not As Hard As You Think," and I’m going to retell what it covers. It dives into how you can fine-tune an open multimodal embedding model called Gemma 2 on your own data to get better results for your specific use cases, like searching through documents, product names, or sounds that matter to you.
+
+--- chapter: demo example ---
+
+The creator shows a demo where they fine-tuned Gemma 2 on transcripts from their own YouTube channel. After fine-tuning, the model could return exact moments in videos with clickable timestamps when asked questions. This is really handy because it means the model understands the content better after a little bit of training on your own stuff.
+
+--- chapter: fine-tuning basics ---
+
+One big question is whether just a few minutes of fine-tuning can actually make a noticeable difference without messing up what the model already knows. Unlike fine-tuning a large language model that outputs text, embedding models output vectors—basically numerical representations of inputs. So, instead of teaching the model to say the right thing, you teach it which inputs should be close together in this vector space.
+
+The training data is made up of pairs, like a customer question and the relevant passage that answers it. You don’t need to label wrong answers because the training process automatically treats other passages in the batch as negatives. This method is called multiple negatives ranking loss and is used in popular models like sentence transformers and CLIP.
+
+However, there’s a tricky issue: if the same passage appears more than once in a batch, say because two customers ask about the same thing, the model might get confused and treat a correct passage as wrong. To fix this, the creator uses a “no duplicate sampler” that makes sure no duplicate texts appear in the same batch during training.
+
+--- chapter: prompts and adapters ---
+
+Another important detail is the prompt format. Gemma 2 expects a short task prompt before the search query and documents, which should be in a title and text format. The prompts you use during training and when you deploy the model have to match exactly for it to work well.
+
+For fine-tuning, the video uses LoRA adapters. These are small trainable matrices added to the frozen model weights, so you don’t have to retrain the whole model. This makes training fast and means you only need to save a small adapter file, about 2% of the model’s total weights.
+
+Gemma 2 is multimodal, meaning it uses a shared backbone for text, images, video, and audio. So, fine-tuning on one type of data, like audio, will affect the others too.
+
+--- chapter: evaluation strategy ---
+
+When evaluating the fine-tuning, just looking at training loss isn’t enough. You want to test on unseen questions, and it’s best to split your test data by source, like different articles or videos, so you don’t accidentally test on things the model has already seen during training.
+
+--- chapter: example 1 - sound classification ---
+
+The first example fine-tunes Gemma 2 on the ESC-50 dataset, which has 50 everyday sounds like dog barking or chainsaws. The training pairs are simple: a label sentence like “sound of a chainsaw” paired with the audio clip.
+
+Before fine-tuning, the model’s accuracy on unseen clips was about 25%. After just 7 and a half minutes of LoRA training on an A100 GPU, accuracy jumped to around 66%. Some sounds, like brushing teeth, went up to nearly perfect identification.
+
+But it’s important to note the model learns the labels it’s trained on. It doesn’t get better at general hearing or recognizing sounds it hasn’t seen before.
+
+--- chapter: impact on other modalities ---
+
+Fine-tuning on audio didn’t change photo and video search performance, but it did cause a slight drop—about 4 points—in journal text search, showing there’s a trade-off when you update the shared backbone.
+
+The creator also found a bug where the audio processor sometimes truncated clips incorrectly when loading adapters, which hurt performance. They fixed this by reusing the base model’s processor.
+
+--- chapter: example 2 - video transcripts ---
+
+The second example fine-tunes on 120 YouTube video transcripts. They created question-passage pairs using Gemini 3.8 to generate viewer-style questions and split the data by video to keep test questions unseen.
+
+Before fine-tuning, the model returned the correct passage first about 66% of the time. After less than 3 minutes of training, that went up to about 75%. Again, general text search dropped by about 4 points.
+
+--- chapter: summary and recommendations ---
+
+So, to sum up, just a few minutes of fine-tuning can improve performance on specific sounds and video transcripts. The model learns the labels it’s trained on but doesn’t get better at general skills for unseen labels. Fine-tuning also slightly reduces general text search quality because of the shared backbone.
+
+If you want to fine-tune Gemini 2 yourself, the video recommends preparing your data as pairs and avoiding duplicates in batches, testing on unseen data split by source, and keeping an eye on how other modalities change after fine-tuning.
+
+The creator invites viewers to share their own fine-tuning experiences and provides links in the video description to get started.

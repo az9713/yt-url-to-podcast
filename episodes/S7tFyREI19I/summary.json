@@ -1,0 +1,81 @@
+{
+  "title": "Training Your Own Embedding Model Is Not As Hard As You Think",
+  "language": "en-US",
+  "dek": "Fine-tuning an open multimodal embedding model like Gemma 2 on your own data can significantly improve retrieval performance with just a few minutes of training, though it may affect general capabilities.",
+  "rights": "Publish this episode only if you have the rights to the source video.",
+  "sections": [
+    {
+      "heading": "Introduction to Fine-Tuning Embedding Models",
+      "paragraphs": [
+        "Embedding Gemma 2 is a powerful open model designed for multimodal retrieval tasks. Unlike off-the-shelf models that only understand general data, fine-tuning Gemma 2 on your own documents, product names, or sounds allows it to better capture specific information relevant to your use case."
+      ]
+    },
+    {
+      "heading": "Fine-Tuning Demo and Goals",
+      "paragraphs": [
+        "A demonstration involved fine-tuning Gemma 2 on transcripts from the creator's YouTube channel, enabling the model to return exact video moments with clickable timestamps in response to questions.",
+        "The main goal was to verify if a few minutes of fine-tuning can improve model performance on custom data without degrading its existing capabilities."
+      ]
+    },
+    {
+      "heading": "Differences Between Fine-Tuning LLMs and Embedding Models",
+      "paragraphs": [
+        "Large Language Models (LLMs) learn to produce exact text outputs, while embedding models convert inputs into vector representations (embeddings) where semantic relationships matter more than exact outputs.",
+        "Training data for embedding models consists of pairs, such as a customer question and a relevant passage, without needing explicit negative labels. The model learns by bringing related pairs closer in embedding space and pushing unrelated pairs apart."
+      ]
+    },
+    {
+      "heading": "Training Methodology and Batch Sampling",
+      "paragraphs": [
+        "Training uses batches (for example, 32 pairs), where each question's correct passage is the positive example and all other passages in the batch serve as negatives, removing the need for manual negative labeling.",
+        "A challenge arises when duplicate passages appear in the same batch, causing the model to mistakenly treat correct answers as negatives.",
+        "This is resolved by using a batch sampler that avoids duplicates within the same batch, known as the 'no duplicate sampler' in sentence transformers."
+      ]
+    },
+    {
+      "heading": "Prompt Format and Fine-Tuning Technique",
+      "paragraphs": [
+        "Embedding Gemma 2 requires a short task prompt before search queries and documents; it is crucial that training and production prompts match exactly for consistent performance.",
+        "Fine-tuning is performed using LoRA (Low-Rank Adaptation) adapters, which are small trainable matrices added to the frozen original model weights. This approach updates less than 2% of the weights, enabling fast and lightweight training."
+      ]
+    },
+    {
+      "heading": "Multimodal Impact and Evaluation",
+      "paragraphs": [
+        "Gemma 2 shares a backbone architecture for text, images, video, and audio modalities. Fine-tuning on one modality, such as audio, can affect others, necessitating careful testing for cross-modal impacts.",
+        "Training loss reduction indicates improvement on training examples only. To avoid overfitting, evaluation uses a test set split by source (e.g., different articles or videos) to ensure no overlap."
+      ]
+    },
+    {
+      "heading": "Example 1: Everyday Sounds Classification",
+      "paragraphs": [
+        "Using the ESC 50 dataset containing 50 short sound clips (e.g., dog barking, rain, chainsaw), training pairs were created pairing label sentences with audio clips.",
+        "Without the no duplicate sampler, multiple identical labels appeared per batch, causing training difficulties.",
+        "Training the audio encoder with LoRA took approximately 7.5 minutes and improved accuracy from about 25% to 66% on unseen clips.",
+        "Some sounds, like brushing teeth, were almost always correctly identified after training.",
+        "The model learned specific labels rather than general audio understanding; when 10 sounds were excluded from training, no improvement was observed on those unseen sounds.",
+        "Impact on other modalities showed photo and voice search remained stable, but journal text search accuracy dropped by about 4 points.",
+        "An initial drop in voice search accuracy to near zero was traced to a processor issue that cut audio clips too short and was fixed by reusing the base model processor."
+      ]
+    },
+    {
+      "heading": "Example 2: Text Search on YouTube Transcripts",
+      "paragraphs": [
+        "Text search was fine-tuned on 120 YouTube video transcripts segmented into passages.",
+        "Question-passage pairs were generated using Gemini 3.8 to create questions for each passage.",
+        "Test data was split by video to avoid overlap between training and testing.",
+        "Before training, the model returned correct passages first about 66% of the time; after under 3 minutes of training, this improved to approximately 75%.",
+        "General text search performance again dropped by about 4 points after fine-tuning."
+      ]
+    },
+    {
+      "heading": "Summary and Recommendations",
+      "paragraphs": [
+        "A few minutes of fine-tuning can improve model performance on your own data, but the model primarily learns your specific labels rather than general skills, and some general text search quality may decline.",
+        "Recommendations for fine-tuning Gemma 2 include: preparing data as pairs while avoiding duplicates in batches, testing on unseen data split by source, and monitoring effects on other modalities due to the shared backbone.",
+        "Users are encouraged to share their experiences with fine-tuning embedding models in the comments section.",
+        "The video description contains links to resources and the notebook demo running on an A100 GPU in Colab."
+      ]
+    }
+  ]
+}

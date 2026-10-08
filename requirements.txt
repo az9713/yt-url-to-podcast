@@ -1,0 +1,8 @@
+kokoro>=0.9.4
+soundfile
+numpy
+misaki[en]
+misaki[ja]
+misaki[zh]
+faster-whisper
+chatterbox-tts

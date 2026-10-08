@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conversion ledger</title>
+<style>
+  :root { color-scheme: light; }
+  body { margin: 0; background: #f4f1ea; color: #1c1915; font: 1rem/1.5 Georgia, "Iowan Old Style", Palatino, serif; }
+  main { max-width: 72rem; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+  h1 { font-size: 2rem; font-weight: 600; margin-bottom: 0.4rem; }
+  h2 { font-size: 1.25rem; margin-top: 2rem; }
+  .meta, td .meta { font-family: "Segoe UI", sans-serif; font-size: 0.8rem; color: #5c564c; }
+  table { width: 100%; border-collapse: collapse; font-family: "Segoe UI", sans-serif; font-size: 0.82rem; background: #fffdf8; }
+  th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.45rem; border-bottom: 1px solid #e4ddd0; }
+  th { font-size: 0.72rem; letter-spacing: 0.03em; text-transform: uppercase; color: #5c564c; }
+  a { color: #1f4d3a; }
+  article { border-top: 1px solid #e4ddd0; padding-top: 0.5rem; }
+</style>
+</head>
+<body>
+<main>
+<h1>Conversion ledger</h1>
+<p>Each row is one video turned into an HTML summary and a spoken episode. This file is the ledger. Later runs append to it.</p>
+<p>Token count is the billing meter: input, output, cache, and reasoning tokens, priced by the model catalog when Pi reports a cost. It is not the conversion. The conversion is the change from video time to episode time, and what that change cost in money and waiting.</p>
+<p>Read three rates together. Podcast length divided by video length shows how much speaking time remains. Wall-clock time shows how long the machine worked. Catalog dollars per minute of video show the metered price. A short episode can still be expensive if the model reread a long transcript. A long episode can still be cheap if the voice ran locally.</p>
+<p>Dollar amounts stay <strong>unknown</strong> unless every model call returned a catalog price. Character counts are not converted into pretend tokens.</p>
+<table>
+<thead>
+<tr>
+<th>Recorded</th>
+<th>Video</th>
+<th>Video length</th>
+<th>Podcast length</th>
+<th>Podcast / video</th>
+<th>Wall clock</th>
+<th>Model</th>
+<th>Tokens</th>
+<th>Catalog cost</th>
+<th>Cost / video minute</th>
+<th>Transcript</th>
+<th>Voice</th>
+<th>Script passes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-10-08T16:49:21.876Z</td>
+<td><a href="https://www.youtube.com/watch?v=S7tFyREI19I">Training Your Own Embedding Model Is Not As Hard As You Think</a><br><span class="meta">Prompt Engineering · S7tFyREI19I</span></td>
+<td>12m 36s</td>
+<td>5m 18s</td>
+<td>42%</td>
+<td>1h 22m 33s</td>
+<td>openai/gpt-4.1-mini</td>
+<td>unknown</td>
+<td>unknown</td>
+<td>unknown</td>
+<td>local-transcription</td>
+<td>kokoro af_heart</td>
+<td>1</td>
+</tr>
+<tr>
+<td>2026-10-08T22:12:16.000Z</td>
+<td><a href="https://www.youtube.com/watch?v=oz2CwrPV2Rg">Anthropic Engineers Just 10x'd Everyone's Claude Code</a><br><span class="meta">Nate Herk | AI Automation · oz2CwrPV2Rg</span></td>
+<td>12m 22s</td>
+<td>5m 52s</td>
+<td>47%</td>
+<td>6m 20s</td>
+<td>claude-sonnet-5-5 (Claude Code session)</td>
+<td>unknown</td>
+<td>unknown</td>
+<td>unknown</td>
+<td>captions</td>
+<td>kokoro af_heart</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+<article>
+<h2>Training Your Own Embedding Model Is Not As Hard As You Think</h2>
+<p class="meta">reconstructed · 2026-10-08T16:49:21.876Z</p>
+
+<ul><li>Reconstructed on 2026-10-08 from the finished files and the run log. This row is not a second conversion.</li>
+<li>Checkpoint shows one notes pass and one script pass. The first script passed the overlap check.</li>
+<li>A later repackage fixed the source URL stored in the audio metadata. It did not call the model again.</li></ul>
+<h3>Unknowns</h3>
+<ul><li><strong>API tokens and dollars.</strong> Pi can report input, output, cache, reasoning tokens, and a catalog price on each response. This conversion ran before that was saved. Character counts of the files are not tokens, so no dollar figure is estimated.</li>
+<li><strong>Speech-to-text errors.</strong> English auto-captions existed, but YouTube returned HTTP 429 after repeated fetches. The transcript is local faster-whisper (small, CPU). Its mistakes against the soundtrack were not measured.</li>
+<li><strong>Claims left out.</strong> The video is 12m 36s and the episode is 5m 18s, about 42 percent of the runtime. The sentence check only rejects a script that recites the HTML. It does not say which claims were dropped.</li>
+<li><strong>How the waiting time splits.</strong> Wall clock is 1h 22m 33s from the launcher log, 15:26:48Z to 16:49:22Z. About 54 minutes of that was a Kokoro segment that stopped advancing and was resumed. The split is reconstructed from log times, not from a stage timer.</li>
+<li><strong>The stopped first attempt.</strong> An earlier attempt was killed during transcription, before any model call. It should not have added model tokens. That was not confirmed from a provider bill.</li>
+<li><strong>One-time voice download.</strong> Kokoro weights were downloaded on this machine during testing. That download is not assigned to this episode.</li>
+<li><strong>Right to publish.</strong> The source is the Prompt Engineering channel. The ledger does not decide whether this episode may be published.</li>
+<li><strong>Electricity and disk.</strong> Local transcription, a 145 MB wav, 19 voice parts, and the final m4a used this laptop. None of that is on the model bill.</li></ul>
+</article>
+<article>
+<h2>Anthropic Engineers Just 10x'd Everyone's Claude Code</h2>
+<p class="meta">run · 2026-10-08T22:12:16.000Z</p>
+<p>Stages this invocation: fetch + caption fix 1m 40s, clean transcript 0m 7s, notes 0m 19s, summary + script 0m 46s, overlap check + rewrite 0m 18s, speak (kokoro, 20 segments) 2m 48s, package m4a 0m 18s</p>
+<ul><li>First fetch failed: ffmpeg was not on PATH (yt-dlp subtitle conversion needs it). The script then downloaded a 142 MB wav (36 s) that was not needed. Both were removed. ffmpeg came from WinGet Links, added to PATH for the shell only.</li>
+<li>scripts/fetch_source.py chose caption track 'en' and got no vtt. Track 'en-orig' downloaded in 3 s by hand. Cause not diagnosed.</li>
+<li>Script pass 1 had 2 recited sentences; pass 2 had 0.</li>
+<li>Loudness of episode.m4a measured at -16.3 LUFS integrated. 8 chapter marks. Kokoro ran at 168 s for 351.9 s of audio (0.48 x real time) on this machine. No segment stalled.</li></ul>
+<h3>Unknowns</h3>
+<ul><li><strong>API tokens and dollars.</strong> This run was driven from a Claude Code session. The session does not expose per-response token counts or a catalog price to the model, so none is recorded and none is estimated from characters.</li>
+<li><strong>Caption accuracy.</strong> The transcript is YouTube auto-captions (en-orig). They misspell names (Enthropic, Thoric, Boris Jurnney). Errors against the soundtrack were not measured; names were corrected from context.</li>
+<li><strong>Claims left out.</strong> The episode is 351.9 s of a 742 s video (47.4%). The overlap check only rejects recitation of the HTML. It does not say which claims were dropped.</li>
+<li><strong>Speaker and figure verification.</strong> Figures (80%, 13.9% to 85%, 49% to 74%, 79.5% to 88.1%, 563 tokens, 252 startups, 223 transcripts) are the presenter's statements. They were not checked against the Anthropic article or the 2025 paper.</li></ul>
+</article>
+</main>
+</body>
+</html>

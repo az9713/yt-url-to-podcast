@@ -1,0 +1,121 @@
+[
+  {
+    "recordedAt": "2026-10-08T16:49:21.876Z",
+    "source": "reconstructed",
+    "videoId": "S7tFyREI19I",
+    "url": "https://www.youtube.com/watch?v=S7tFyREI19I",
+    "title": "Training Your Own Embedding Model Is Not As Hard As You Think",
+    "channel": "Prompt Engineering",
+    "language": "en-US",
+    "model": "openai/gpt-4.1-mini",
+    "videoDurationSeconds": 756,
+    "podcastDurationSeconds": 317.8,
+    "wallClockSeconds": 4953.317,
+    "transcriptSource": "local-transcription",
+    "transcriptCharacters": 11000,
+    "notesCharacters": 3807,
+    "summaryCharacters": 6884,
+    "scriptCharacters": 5313,
+    "voice": "kokoro af_heart",
+    "segmentCount": 19,
+    "scriptPasses": 1,
+    "episodeBytes": 5358388,
+    "usage": null,
+    "stagesSeconds": {},
+    "unknowns": [
+      {
+        "topic": "API tokens and dollars",
+        "whyItMatters": "Pi can report input, output, cache, reasoning tokens, and a catalog price on each response. This conversion ran before that was saved. Character counts of the files are not tokens, so no dollar figure is estimated."
+      },
+      {
+        "topic": "Speech-to-text errors",
+        "whyItMatters": "English auto-captions existed, but YouTube returned HTTP 429 after repeated fetches. The transcript is local faster-whisper (small, CPU). Its mistakes against the soundtrack were not measured."
+      },
+      {
+        "topic": "Claims left out",
+        "whyItMatters": "The video is 12m 36s and the episode is 5m 18s, about 42 percent of the runtime. The sentence check only rejects a script that recites the HTML. It does not say which claims were dropped."
+      },
+      {
+        "topic": "How the waiting time splits",
+        "whyItMatters": "Wall clock is 1h 22m 33s from the launcher log, 15:26:48Z to 16:49:22Z. About 54 minutes of that was a Kokoro segment that stopped advancing and was resumed. The split is reconstructed from log times, not from a stage timer."
+      },
+      {
+        "topic": "The stopped first attempt",
+        "whyItMatters": "An earlier attempt was killed during transcription, before any model call. It should not have added model tokens. That was not confirmed from a provider bill."
+      },
+      {
+        "topic": "One-time voice download",
+        "whyItMatters": "Kokoro weights were downloaded on this machine during testing. That download is not assigned to this episode."
+      },
+      {
+        "topic": "Right to publish",
+        "whyItMatters": "The source is the Prompt Engineering channel. The ledger does not decide whether this episode may be published."
+      },
+      {
+        "topic": "Electricity and disk",
+        "whyItMatters": "Local transcription, a 145 MB wav, 19 voice parts, and the final m4a used this laptop. None of that is on the model bill."
+      }
+    ],
+    "notes": [
+      "Reconstructed on 2026-10-08 from the finished files and the run log. This row is not a second conversion.",
+      "Checkpoint shows one notes pass and one script pass. The first script passed the overlap check.",
+      "A later repackage fixed the source URL stored in the audio metadata. It did not call the model again."
+    ]
+  },
+  {
+    "recordedAt": "2026-10-08T22:12:16.000Z",
+    "source": "run",
+    "videoId": "oz2CwrPV2Rg",
+    "url": "https://www.youtube.com/watch?v=oz2CwrPV2Rg",
+    "title": "Anthropic Engineers Just 10x'd Everyone's Claude Code",
+    "channel": "Nate Herk | AI Automation",
+    "language": "en-US",
+    "model": "claude-sonnet-5-5 (Claude Code session)",
+    "videoDurationSeconds": 742,
+    "podcastDurationSeconds": 351.9,
+    "wallClockSeconds": 380,
+    "transcriptSource": "captions",
+    "transcriptCharacters": 17137,
+    "notesCharacters": 6036,
+    "summaryCharacters": 8846,
+    "scriptCharacters": 6012,
+    "voice": "kokoro af_heart",
+    "segmentCount": 20,
+    "scriptPasses": 2,
+    "episodeBytes": 5933087,
+    "usage": null,
+    "stagesSeconds": {
+      "fetch + caption fix": 100,
+      "clean transcript": 7,
+      "notes": 19,
+      "summary + script": 46,
+      "overlap check + rewrite": 18,
+      "speak (kokoro, 20 segments)": 168,
+      "package m4a": 18
+    },
+    "unknowns": [
+      {
+        "topic": "API tokens and dollars",
+        "whyItMatters": "This run was driven from a Claude Code session. The session does not expose per-response token counts or a catalog price to the model, so none is recorded and none is estimated from characters."
+      },
+      {
+        "topic": "Caption accuracy",
+        "whyItMatters": "The transcript is YouTube auto-captions (en-orig). They misspell names (Enthropic, Thoric, Boris Jurnney). Errors against the soundtrack were not measured; names were corrected from context."
+      },
+      {
+        "topic": "Claims left out",
+        "whyItMatters": "The episode is 351.9 s of a 742 s video (47.4%). The overlap check only rejects recitation of the HTML. It does not say which claims were dropped."
+      },
+      {
+        "topic": "Speaker and figure verification",
+        "whyItMatters": "Figures (80%, 13.9% to 85%, 49% to 74%, 79.5% to 88.1%, 563 tokens, 252 startups, 223 transcripts) are the presenter's statements. They were not checked against the Anthropic article or the 2025 paper."
+      }
+    ],
+    "notes": [
+      "First fetch failed: ffmpeg was not on PATH (yt-dlp subtitle conversion needs it). The script then downloaded a 142 MB wav (36 s) that was not needed. Both were removed. ffmpeg came from WinGet Links, added to PATH for the shell only.",
+      "scripts/fetch_source.py chose caption track 'en' and got no vtt. Track 'en-orig' downloaded in 3 s by hand. Cause not diagnosed.",
+      "Script pass 1 had 2 recited sentences; pass 2 had 0.",
+      "Loudness of episode.m4a measured at -16.3 LUFS integrated. 8 chapter marks. Kokoro ran at 168 s for 351.9 s of audio (0.48 x real time) on this machine. No segment stalled."
+    ]
+  }
+]

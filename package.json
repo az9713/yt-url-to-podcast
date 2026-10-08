@@ -1,0 +1,19 @@
+{
+  "name": "pi-yt-podcast",
+  "private": true,
+  "type": "module",
+  "description": "Pi agent that turns a YouTube URL into an HTML summary and a single-host episode.",
+  "keywords": ["pi-package"],
+  "pi": {
+    "extensions": ["./extensions/index.ts"],
+    "skills": ["./skills"]
+  },
+  "scripts": {
+    "test": "node --experimental-strip-types --test test/pipeline.test.ts test/ledger.test.ts",
+    "start": "pi --no-session --no-tools -e ./extensions/index.ts"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-ai": "*",
+    "@earendil-works/pi-coding-agent": "*"
+  }
+}

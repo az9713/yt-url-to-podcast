@@ -1,0 +1,19 @@
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+.pi/sessions/
+
+# Large or third-party intermediates inside episodes/. The notes, script, summary and episode.m4a stay.
+episodes/*/audio/
+episodes/*/subs/
+episodes/*/audio.*
+episodes/*/transcript.txt
+episodes/*/state.json
+episodes/*/concat.txt
+episodes/*/chapters.ffmeta
+episodes/*/*.log
+episodes/*/*.pid
+*.wav
+*.webm
+.impeccable/
