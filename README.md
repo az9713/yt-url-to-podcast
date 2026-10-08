@@ -10,12 +10,12 @@ This repository exists to **demystify the URL-to-podcast workflow**. There is no
 
 GitHub strips `<audio>` tags from a README, so the players are on the project page. Direct file links are given too.
 
-**Player page (GitHub Pages):** <https://az9713.github.io/yt-url-to-podcast/>
+**Player page (GitHub Pages):** <https://az9713.github.io/yt-url-to-podcast/>  ·  **Cost and timing ledger:** <https://az9713.github.io/yt-url-to-podcast/ledger.html>
 
 | # | Built by | Source video | Episode file |
 |---|---|---|---|
-| 1 | Cursor + Grok 4.7 (high), via the Pi extension | [Training Your Own Embedding Model Is Not As Hard As You Think](https://www.youtube.com/watch?v=S7tFyREI19I) — Prompt Engineering, 12m 36s | [`episodes/S7tFyREI19I/episode.m4a`](episodes/S7tFyREI19I/episode.m4a) · [summary](episodes/S7tFyREI19I/summary.html) |
-| 2 | Claude Code (Sonnet 5.5), following `SKILL.md` | [Anthropic Engineers Just 10x'd Everyone's Claude Code](https://www.youtube.com/watch?v=oz2CwrPV2Rg) — Nate Herk \| AI Automation, 12m 22s | [`episodes/oz2CwrPV2Rg/episode.m4a`](episodes/oz2CwrPV2Rg/episode.m4a) · [summary](episodes/oz2CwrPV2Rg/summary.html) |
+| 1 | Cursor + Grok 4.7 (high), via the Pi extension | [Training Your Own Embedding Model Is Not As Hard As You Think](https://www.youtube.com/watch?v=S7tFyREI19I) — Prompt Engineering, 12m 36s | [`episodes/S7tFyREI19I/episode.m4a`](https://az9713.github.io/yt-url-to-podcast/episodes/S7tFyREI19I/episode.m4a) · [summary](https://az9713.github.io/yt-url-to-podcast/episodes/S7tFyREI19I/summary.html) |
+| 2 | Claude Code (Sonnet 5.5), following `SKILL.md` | [Anthropic Engineers Just 10x'd Everyone's Claude Code](https://www.youtube.com/watch?v=oz2CwrPV2Rg) — Nate Herk \| AI Automation, 12m 22s | [`episodes/oz2CwrPV2Rg/episode.m4a`](https://az9713.github.io/yt-url-to-podcast/episodes/oz2CwrPV2Rg/episode.m4a) · [summary](https://az9713.github.io/yt-url-to-podcast/episodes/oz2CwrPV2Rg/summary.html) |
 
 The voices are synthetic. Each episode is a retelling, not the creator's words. The creators own the videos; watch the originals for the full content.
 
