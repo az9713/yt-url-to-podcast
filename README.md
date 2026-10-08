@@ -8,7 +8,17 @@ This repository exists to **demystify the URL-to-podcast workflow**. There is no
 
 ## Hear the two episodes
 
-GitHub strips `<audio>` tags from a README, so the players are on the project page. Direct file links are given too.
+Press play below. GitHub strips `<audio>` tags from a README, so each player is the same audio wrapped in a small video file (a still picture plus the sound).
+
+**Run 1 — Cursor + Grok 4.7 (high):** Training Your Own Embedding Model Is Not As Hard As You Think (5m 18s)
+
+<video src="https://github.com/user-attachments/assets/159e86d5-e4f5-416a-afed-ee61fb943b59" controls></video>
+
+**Run 2 — Claude Code (Sonnet 5.5):** Anthropic Engineers Just 10x'd Everyone's Claude Code (5m 52s)
+
+<video src="https://github.com/user-attachments/assets/d9106d60-564d-4214-8fa3-c6a0af6b51c4" controls></video>
+
+The same episodes, with chapter marks, are on the project page and as direct files below.
 
 **Player page (GitHub Pages):** <https://az9713.github.io/yt-url-to-podcast/>  ·  **Cost and timing ledger:** <https://az9713.github.io/yt-url-to-podcast/ledger.html>
 
