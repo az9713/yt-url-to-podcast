@@ -1,16 +1,16 @@
-# pi-yt-podcast
+# yt-url-to-podcast
 
 Turn one YouTube URL into two things: a written **HTML summary** for readers, and a **single-host audio episode** (`.m4a`) for listeners.
 
 This repository exists to **demystify the URL-to-podcast workflow**. There is no hidden service. The whole pipeline is five small stages, a few command-line tools, and a language model that writes three texts. You can read every stage in under an hour.
 
-> **Credits.** The original version of this project was developed by **Cursor with Grok 4.7 (high)**. It runs as an extension for the [Pi coding agent](https://www.npmjs.com/package/@earendil-works/pi-coding-agent). A second run of the same procedure was then done by **Claude Code (Claude Sonnet 5.5)**, which read `skills/yt-podcast/SKILL.md` and followed it step by step. It also fixed a caption-track bug in `scripts/fetch_source.py` along the way.
+> **Credits.** The original version of this project was developed by **Cursor with Grok 4.7 (high)**. Its orchestrator was packaged as an optional extension for the [Pi coding agent](https://www.npmjs.com/package/@earendil-works/pi-coding-agent). The core does not depend on Pi. A second run of the same procedure was then done by **Claude Code (Claude Sonnet 5.5)**, which read `skills/yt-podcast/SKILL.md` and followed it step by step. It also fixed a caption-track bug in `scripts/fetch_source.py` along the way.
 
 ## Hear the two episodes
 
 GitHub strips `<audio>` tags from a README, so the players are on the project page. Direct file links are given too.
 
-**Player page (GitHub Pages):** <https://az9713.github.io/pi-yt-podcast/>
+**Player page (GitHub Pages):** <https://az9713.github.io/yt-url-to-podcast/>
 
 | # | Built by | Source video | Episode file |
 |---|---|---|---|
@@ -60,7 +60,7 @@ Both paths use the same scripts, the same file layout, and the same ledger.
 
 | Layer | Tool | Job in the workflow |
 |---|---|---|
-| Agent runtime | [Pi coding agent](https://www.npmjs.com/package/@earendil-works/pi-coding-agent) (`@earendil-works/pi-ai`, `@earendil-works/pi-coding-agent`) | Hosts the `/podcast` command and the `--podcast` flag; sends prompts to the model |
+| Agent runtime (optional) | [Pi coding agent](https://www.npmjs.com/package/@earendil-works/pi-coding-agent) (`@earendil-works/pi-ai`, `@earendil-works/pi-coding-agent`) | Hosts the `/podcast` command and the `--podcast` flag; sends prompts to the model |
 | Orchestration | TypeScript on Node 22 (`--experimental-strip-types`, no build step) | `src/run.ts` stage runner, chunking, prompts, ledger, overlap check |
 | Skill file | Markdown (`skills/yt-podcast/SKILL.md`) | The procedure, readable by any agent |
 | Download | [yt-dlp](https://github.com/yt-dlp/yt-dlp) | Metadata, captions, and audio when needed |
@@ -77,7 +77,7 @@ You need Node 22.6 or later, Python 3.10 or later, `ffmpeg` and `ffprobe` on you
 ```bash
 python -m venv .venv
 .venv/Scripts/python -m pip install -r requirements.txt   # Windows; use .venv/bin/python elsewhere
-npm install -g @earendil-works/pi-coding-agent             # only for the Pi path
+npm install -g @earendil-works/pi-coding-agent             # optional: only for the Pi front end
 npm test
 ./scripts/podcast.sh "https://www.youtube.com/watch?v=VIDEO_ID"
 ```

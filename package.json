@@ -1,8 +1,8 @@
 {
-  "name": "pi-yt-podcast",
+  "name": "yt-url-to-podcast",
   "private": true,
   "type": "module",
-  "description": "Pi agent that turns a YouTube URL into an HTML summary and a single-host episode.",
+  "description": "Turns a YouTube URL into an HTML summary and a single-host episode. Optional Pi extension included.",
   "keywords": ["pi-package"],
   "pi": {
     "extensions": ["./extensions/index.ts"],
