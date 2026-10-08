@@ -98,13 +98,38 @@ Both runs used a video of about 12 minutes. The numbers come from `ledger.json`.
 | Voice | Kokoro `af_heart`, 19 segments | Kokoro `af_heart`, 20 segments |
 | Script passes | 1 | 2 (pass 1 had 2 recited sentences) |
 | Wall clock | 4,953 s (82m 33s) | 380 s (6m 20s) |
-| Tokens and cost | unknown (not saved at the time) | unknown (the session exposes none) |
+| Tokens | unknown (not saved at the time) | 2,584,992 cache-read + 34,331 cache-write + 48 uncached input + 15,416 output (1,653 of the output were thinking) |
+| **Cost (USD)** | **unknown. Not recorded, and not estimated** | **about $0.76 at list price** (see Cost below) |
 
 **Why run 1 took so long.** YouTube returned HTTP 429 after repeated caption requests, so the run transcribed the whole soundtrack on the CPU (about 15 minutes). Then one Kokoro segment stopped advancing for about 54 minutes before it was resumed. The procedure in `SKILL.md` is written to avoid both waits.
 
 **Why run 2 took 6 minutes.** Captions were available and no voice segment stalled. Speech took 168 s for 351.9 s of audio (0.48 times real time).
 
 **The caption bug.** Run 2 first got no captions either. The video has two English auto-caption tracks: `en` is a machine translation of the original, and YouTube answers it with HTTP 429. `en-orig` is the speaker's own track and downloads without error. `fetch_source.py` now tries `<lang>-orig` first.
+
+## Cost of one conversion
+
+| Run | Cost in USD | Basis |
+|---|---|---|
+| Run 1: Cursor + Grok 4.7 (Pi, `openai/gpt-4.1-mini`) | **Unknown** | The run ended before token counts were saved. No figure is given, because none was measured. |
+| Run 2: Claude Code (Sonnet 5.5) | **About $0.76** | Token counts read from the session log for the 22 model calls between the first fetch and the finished `.m4a` (6m 20s), priced at list rates |
+
+How the $0.76 is built. Rates are Sonnet 5.5 list prices per million tokens: cache read $0.20, 5-minute cache write $2.50, uncached input $2, output $10 (thinking tokens bill as output).
+
+| Part | Tokens | USD |
+|---|---|---|
+| Cache reads | 2,584,992 | 0.517 |
+| Cache writes (assumed 5-minute) | 34,331 | 0.086 |
+| Uncached input | 48 | 0.000 |
+| Output | 15,416 | 0.154 |
+| **Total** | | **0.757** |
+
+Read this number with care:
+- **The rates are not from Anthropic's own pricing page.** I found them on third-party pages, and those pages disagree on earlier Sonnet 5 prices. Check [Anthropic pricing](https://platform.claude.com/docs/en/about-claude/pricing) before you rely on the figure.
+- **Most of the cost is context re-reading.** Cache reads are 68% of the total. Each call re-read about 117,000 tokens of earlier conversation in a long session. A fresh session that only runs this procedure should cost less. I did not measure that.
+- **It is a list-price equivalent.** If Claude Code runs on a subscription plan, the amount you actually pay for this conversion can be $0 extra.
+- **Local compute is not counted.** yt-dlp, Kokoro (168 s of CPU time), ffmpeg, and electricity are free of API charges.
+- **Log method.** The window has 22 unique model responses, found by message id. If the log merged any two responses, the true token count is higher.
 
 ## Repository layout
 
