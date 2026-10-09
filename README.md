@@ -8,15 +8,15 @@ This repository exists to **demystify the URL-to-podcast workflow**. There is no
 
 ## Hear the two episodes
 
-Press play below. GitHub strips `<audio>` tags from a README, so each player is the same audio wrapped in a small video file (a still picture plus the sound).
+Press play below. GitHub strips `<audio>` tags from a README, so each player is the same audio wrapped in a small video file. The picture is only a title card; press play for the sound.
 
 **Run 1 — Cursor + Grok 4.7 (high):** Training Your Own Embedding Model Is Not As Hard As You Think (5m 18s)
 
-https://github.com/user-attachments/assets/159e86d5-e4f5-416a-afed-ee61fb943b59
+https://github.com/user-attachments/assets/5b434532-3fef-447c-aaf2-f4f510f51ff9
 
 **Run 2 — Claude Code (Sonnet 5.5):** Anthropic Engineers Just 10x'd Everyone's Claude Code (5m 52s)
 
-https://github.com/user-attachments/assets/d9106d60-564d-4214-8fa3-c6a0af6b51c4
+https://github.com/user-attachments/assets/3b03ab8a-0db0-4e01-8a70-ed5a4925a12d
 
 The same episodes, with chapter marks, are on the project page and as direct files below.
 
