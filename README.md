@@ -12,11 +12,11 @@ Press play below. GitHub strips `<audio>` tags from a README, so each player is 
 
 **Run 1 — Cursor + Grok 4.7 (high):** Training Your Own Embedding Model Is Not As Hard As You Think (5m 18s)
 
-<video src="https://github.com/user-attachments/assets/159e86d5-e4f5-416a-afed-ee61fb943b59" controls></video>
+https://github.com/user-attachments/assets/159e86d5-e4f5-416a-afed-ee61fb943b59
 
 **Run 2 — Claude Code (Sonnet 5.5):** Anthropic Engineers Just 10x'd Everyone's Claude Code (5m 52s)
 
-<video src="https://github.com/user-attachments/assets/d9106d60-564d-4214-8fa3-c6a0af6b51c4" controls></video>
+https://github.com/user-attachments/assets/d9106d60-564d-4214-8fa3-c6a0af6b51c4
 
 The same episodes, with chapter marks, are on the project page and as direct files below.
 
