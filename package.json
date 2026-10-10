@@ -1,8 +1,8 @@
 {
-  "name": "yt-url-to-podcast",
+  "name": "yt-to-podcast",
   "private": true,
   "type": "module",
-  "description": "Turns a YouTube URL into an HTML summary and a single-host episode. Optional Pi extension included.",
+  "description": "Turns a YouTube video into an HTML summary and a single-host episode. Start from a URL or a screenshot. Optional Pi extension included.",
   "keywords": ["pi-package"],
   "pi": {
     "extensions": ["./extensions/index.ts"],

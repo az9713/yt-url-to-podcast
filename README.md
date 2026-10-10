@@ -1,10 +1,26 @@
-# yt-url-to-podcast
+# yt-to-podcast
 
-Turn one YouTube URL into two things: a written **HTML summary** for readers, and a **single-host audio episode** (`.m4a`) for listeners.
+Turn one YouTube video into two things: a written **HTML summary** for readers, and a **single-host audio episode** (`.m4a`) for listeners. Start from a URL, or from a screenshot of the watch page.
 
-This repository exists to **demystify the URL-to-podcast workflow**. There is no hidden service. The whole pipeline is five small stages, a few command-line tools, and a language model that writes three texts. You can read every stage in under an hour.
+This repository exists to **demystify that workflow**. There is no hidden service. The whole pipeline is five small stages, a few command-line tools, and a language model that writes three texts. You can read every stage in under an hour.
+
+The repository was renamed from `yt-url-to-podcast` when the screenshot app landed. GitHub redirects the repository page. The player-page address changes with the repository name: <https://az9713.github.io/yt-to-podcast/>.
 
 > **Credits.** The original version of this project was developed by **Cursor with Grok 4.7 (high)**. Its orchestrator was packaged as an optional extension for the [Pi coding agent](https://www.npmjs.com/package/@earendil-works/pi-coding-agent). The core does not depend on Pi. A second run of the same procedure was then done by **Claude Code (Claude Sonnet 5.5)**, which read `skills/yt-podcast/SKILL.md` and followed it step by step. It also fixed a caption-track bug in `scripts/fetch_source.py` along the way.
+
+## Screenshot app
+
+A local page starts the same pipeline from a picture of the YouTube watch page. You do not paste a URL or a transcript.
+
+```bash
+npm run app
+```
+
+Open <http://127.0.0.1:8787>. Drop or paste a screenshot. The title or the address bar needs to be visible. When the channel name and the player length pick one upload, the episode starts. When they do not, the page asks which video, and the status line says it is waiting. The status line then shows the current stage. A finished run ends with **Done.** and a player.
+
+GitHub Pages cannot host this page. Creating an episode needs Node, `OPENAI_API_KEY`, yt-dlp, ffmpeg, and a local voice on that computer. Pages only serves the player and the ledger.
+
+A sentence that still repeats the HTML page is removed, and the rest is spoken. A clip with nothing to say is skipped. The episode is the clips that produced audio.
 
 ## Hear the two episodes
 
@@ -20,12 +36,12 @@ https://github.com/user-attachments/assets/3b03ab8a-0db0-4e01-8a70-ed5a4925a12d
 
 The same episodes, with chapter marks, are on the project page and as direct files below.
 
-**Player page (GitHub Pages):** <https://az9713.github.io/yt-url-to-podcast/>  ·  **Cost and timing ledger:** <https://az9713.github.io/yt-url-to-podcast/ledger.html>
+**Player page (GitHub Pages):** <https://az9713.github.io/yt-to-podcast/>  ·  **Cost and timing ledger:** <https://az9713.github.io/yt-to-podcast/ledger.html>
 
 | # | Built by | Source video | Episode file |
 |---|---|---|---|
-| 1 | Cursor + Grok 4.7 (high), via the Pi extension | [Training Your Own Embedding Model Is Not As Hard As You Think](https://www.youtube.com/watch?v=S7tFyREI19I) — Prompt Engineering, 12m 36s | [`episodes/S7tFyREI19I/episode.m4a`](https://az9713.github.io/yt-url-to-podcast/episodes/S7tFyREI19I/episode.m4a) · [summary](https://az9713.github.io/yt-url-to-podcast/episodes/S7tFyREI19I/summary.html) |
-| 2 | Claude Code (Sonnet 5.5), following `SKILL.md` | [Anthropic Engineers Just 10x'd Everyone's Claude Code](https://www.youtube.com/watch?v=oz2CwrPV2Rg) — Nate Herk \| AI Automation, 12m 22s | [`episodes/oz2CwrPV2Rg/episode.m4a`](https://az9713.github.io/yt-url-to-podcast/episodes/oz2CwrPV2Rg/episode.m4a) · [summary](https://az9713.github.io/yt-url-to-podcast/episodes/oz2CwrPV2Rg/summary.html) |
+| 1 | Cursor + Grok 4.7 (high), via the Pi extension | [Training Your Own Embedding Model Is Not As Hard As You Think](https://www.youtube.com/watch?v=S7tFyREI19I) — Prompt Engineering, 12m 36s | [`episodes/S7tFyREI19I/episode.m4a`](https://az9713.github.io/yt-to-podcast/episodes/S7tFyREI19I/episode.m4a) · [summary](https://az9713.github.io/yt-to-podcast/episodes/S7tFyREI19I/summary.html) |
+| 2 | Claude Code (Sonnet 5.5), following `SKILL.md` | [Anthropic Engineers Just 10x'd Everyone's Claude Code](https://www.youtube.com/watch?v=oz2CwrPV2Rg) — Nate Herk \| AI Automation, 12m 22s | [`episodes/oz2CwrPV2Rg/episode.m4a`](https://az9713.github.io/yt-to-podcast/episodes/oz2CwrPV2Rg/episode.m4a) · [summary](https://az9713.github.io/yt-to-podcast/episodes/oz2CwrPV2Rg/summary.html) |
 
 The voices are synthetic. Each episode is a retelling, not the creator's words. The creators own the videos; watch the originals for the full content.
 
@@ -33,7 +49,7 @@ The voices are synthetic. Each episode is a retelling, not the creator's words. 
 
 ```mermaid
 flowchart TD
-    A[YouTube URL] --> B["1. Fetch<br/>yt-dlp: metadata + ONE caption track"]
+    A[YouTube URL or screenshot] --> B["1. Fetch<br/>yt-dlp: metadata + ONE caption track"]
     B -->|captions found| D[transcript.txt]
     B -->|no captions| C["faster-whisper<br/>local speech-to-text"]
     C --> D
@@ -42,8 +58,8 @@ flowchart TD
     E --> G["script.txt<br/>single-host monologue<br/>+ chapter markers"]
     F --> H{"Overlap check<br/>does the script recite the page?"}
     G --> H
-    H -->|yes, up to 3 passes| G
-    H -->|no| I["3. Voice<br/>Kokoro or Chatterbox TTS<br/>one wav per segment of 450 chars or fewer"]
+    H -->|still copied, up to 3 rewrites| G
+    H -->|then remove leftover copies| I["3. Voice<br/>Kokoro or Chatterbox TTS<br/>one wav per segment of 450 chars or fewer"]
     I --> J["4. Package<br/>ffmpeg: join, loudness -16 LUFS,<br/>AAC mono, chapter marks"]
     J --> K[episode.m4a]
     J --> L["5. Ledger<br/>ledger.json + ledger.html<br/>durations, wall clock, tokens, cost"]
@@ -52,19 +68,20 @@ flowchart TD
 In plain words:
 
 1. **Fetch.** `scripts/fetch_source.py` asks YouTube for the video's metadata and for **one** caption track. It prefers the speaker's own auto-caption track (`en-orig`) over a machine-translated one. If the video has no captions, it downloads the audio and `scripts/transcribe.py` transcribes it locally. That can take about as long as the video.
-2. **Two texts, then a check.** The model writes `notes.txt` first. From the notes it writes `summary.html` (for reading) and `script.txt` (for listening). The script is written *without* looking at the page, so the episode does not simply read the page aloud. A small program (`src/overlap.ts`) flags any spoken sentence of 40 characters or more that matches a page sentence exactly or shares about 80 percent of its words. The script is rewritten, up to three passes, until none remain.
+2. **Two texts, then a check.** The model writes `notes.txt` first. From the notes it writes `summary.html` (for reading) and `script.txt` (for listening). The script is written *without* looking at the page, so the episode does not simply read the page aloud. A small program (`src/overlap.ts`) flags any spoken sentence of 40 characters or more that matches a page sentence exactly or shares about 80 percent of its words. The script is rewritten up to three times. Any sentence that still recites the page is then removed, and the rest is spoken.
 3. **Voice.** `scripts/speak.py` renders each segment of the script (450 characters or fewer) to a `.wav` file. A segment that already exists is skipped, so a stalled run can resume.
 4. **Package.** `ffmpeg` joins the wavs, normalises loudness to about −16 LUFS, encodes mono AAC, and writes chapter marks taken from the script's `--- chapter: title ---` lines.
 5. **Ledger.** One row per episode goes to `ledger.json`, and `ledger.html` is regenerated: video length, episode length, wall-clock time, model, token counts, cost. Unknown values stay `unknown`. Nothing is estimated from character counts.
 
-## Two ways to run it
+## Three ways to run it
 
 | | How | Who writes the three texts |
 |---|---|---|
+| **Screenshot app** | `npm run app`, then open <http://127.0.0.1:8787> and drop a picture of the watch page. Needs `OPENAI_API_KEY`. | `gpt-4.1-mini`, unless `PODCAST_MODEL` is set |
 | **Pi extension** | `./scripts/podcast.sh <youtube-url>` or `/podcast <url>` inside Pi. The orchestration is TypeScript in `src/run.ts`; it calls the model through Pi for each stage, with checkpoints in `state.json`. | The model you select in Pi |
 | **Any coding agent** | Give the agent `skills/yt-podcast/SKILL.md` and a URL. The agent runs the Python scripts itself and writes the texts itself. | The agent |
 
-Both paths use the same scripts, the same file layout, and the same ledger.
+All three paths use the same scripts, the same file layout, and the same ledger.
 
 ## Tech stack and tools
 
@@ -78,7 +95,8 @@ Both paths use the same scripts, the same file layout, and the same ledger.
 | Text to speech | [Kokoro](https://github.com/hexgrad/kokoro) (`en`, `es`, `fr`, `hi`, `it`, `ja`, `pt`, `zh`); [Chatterbox](https://github.com/resemble-ai/chatterbox) (`ar`, `da`, `de`, `el`, `fi`, `he`, `ko`, `ms`, `nl`, `no`, `pl`, `ru`, `sv`, `sw`, `tr`) | Renders the script to speech. Other languages: HTML only |
 | Audio | [ffmpeg](https://ffmpeg.org/) / ffprobe | Join, loudness (`loudnorm`), AAC, chapter marks |
 | Python libs | `soundfile`, `numpy`, `misaki` | Audio files and phonemes for Kokoro |
-| Tests | `node --test` | 13 tests for the pipeline and the ledger |
+| Tests | `node --test` | 21 tests for the pipeline, the ledger, and screenshot matching |
+| Screenshot app | Node `http` server, `web/app.html` | Local page on `127.0.0.1:8787`. Reads the screenshot with the writing model, then calls the same stage runner |
 
 ## Setup
 
@@ -93,6 +111,8 @@ npm test
 ```
 
 `podcast.sh` uses `PI_MODEL=provider/model` when set. If only `OPENAI_API_KEY` is set, it uses `openai/gpt-4.1-mini`. Output goes to `episodes/<video-id>/`.
+
+The screenshot app uses that same setup. `npm run app` serves <http://127.0.0.1:8787>. It reads `OPENAI_API_KEY` and, when set, `PODCAST_MODEL`.
 
 ## What each run measured
 
@@ -146,19 +166,20 @@ Read this number with care:
 ```
 extensions/index.ts        Pi extension: /podcast command and --podcast flag
 skills/yt-podcast/SKILL.md The procedure, readable by any agent
-src/                       Stage runner, prompts, chunking, overlap check, ledger, metrics
+src/                       Stage runner, prompts, chunking, overlap check, ledger, metrics, screenshot matching, local server
+web/app.html               Screenshot page served by `npm run app`
 scripts/                   fetch_source.py, transcribe.py, speak.py, podcast.sh, seed-ledger.ts
 test/                      node --test suites
 episodes/<video-id>/       notes, script, summary.html, episode.m4a for each run
 ledger.html, ledger.json   One row per episode
-index.html                 Player page for GitHub Pages
+index.html                 Player page for GitHub Pages. It does not run the screenshot app.
 ```
 
 Large intermediate files (wav parts, raw audio, caption files, full transcripts) are not committed. See `.gitignore`.
 
 ## Known limits
 
-- The episode is a *retelling*. The overlap check stops the script from reciting the page; it does not report which claims the script left out.
+- The episode is a *retelling*. Recited sentences are removed before speech. The check does not report which claims the script left out.
 - Auto-captions misspell names. Neither run measured caption or transcription error against the soundtrack.
 - Figures in a summary are the speaker's statements. The pipeline does not verify them against the sources the speaker cites.
 - Token counts and cost are recorded only when the model response includes them.
