@@ -1,11 +1,12 @@
 import { createHash } from "node:crypto";
+import { existsSync } from "node:fs";
 import { access, mkdir, readdir, readFile, stat, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { inputBudgetChars } from "./budget.ts";
 import { chunkText } from "./chunk.ts";
 import { parseSummary, renderHtml, summaryPlainText, type SummaryDocument } from "./html.ts";
 import { extractJson } from "./json.ts";
-import { copiedSentences } from "./overlap.ts";
+import { copiedSentences, prepareSpeech } from "./overlap.ts";
 import { languagePrompt, notesPrompt, scriptPrompt, summaryPrompt } from "./prompts.ts";
 import { appendLedger, type LedgerEntry } from "./ledger.ts";
 import { emptyUsage, type ModelUsage, type Unknown } from "./metrics.ts";
@@ -199,10 +200,11 @@ export async function runEpisode(input: RunInput): Promise<RunResult> {
     copies = copiedSentences(htmlText, spokenText(script));
     forbidden = copies.slice(0, 20);
   }
-  if (copies.length > 0) {
-    throw new Error(
-      `The spoken script still recited ${copies.length} sentence(s) from the HTML summary after ${SCRIPT_ATTEMPTS} passes. Audio was not rendered. See ${scriptPath}`,
-    );
+  const prepared = prepareSpeech(script, htmlText);
+  if (prepared.removed.length > 0) {
+    log(`Removed ${prepared.removed.length} sentence(s) that repeated the page. The rest will be spoken.`);
+    script = prepared.script;
+    await writeFile(scriptPath, script, "utf8");
   }
 
   try {
@@ -244,6 +246,12 @@ export async function runEpisode(input: RunInput): Promise<RunResult> {
           outDir: audioDir,
         },
         input.signal,
+        (line) => {
+          const spoke = line.match(/^spoke (\d+)\/(\d+)/);
+          if (spoke) log(`Speaking clip ${spoke[1]} of ${spoke[2]}`);
+          const skipped = line.match(/^skipped (\d+)\/(\d+)/);
+          if (skipped) log(`Skipped an empty clip ${skipped[1]} of ${skipped[2]}`);
+        },
       );
       await writeFile(marker, JSON.stringify({ segments: segments.length, scriptHash }), "utf8");
       stagesSeconds.voice = (Date.now() - speakStarted) / 1000;
@@ -252,10 +260,13 @@ export async function runEpisode(input: RunInput): Promise<RunResult> {
     if (!(await exists(episodePath))) {
       const packageStarted = Date.now();
       log("Packaging the episode");
-      const parts = segments.map((segment, index) => ({
-        file: path.join(audioDir, `part-${String(index).padStart(4, "0")}.wav`),
-        chapter: segment.chapter,
-      }));
+      const parts = segments
+        .map((segment, index) => ({
+          file: path.join(audioDir, `part-${String(index).padStart(4, "0")}.wav`),
+          chapter: segment.chapter,
+        }))
+        .filter((part) => existsSync(part.file));
+      if (parts.length === 0) throw new Error("The voice produced no audio.");
       await packageEpisode({
         parts,
         outFile: episodePath,
@@ -304,7 +315,7 @@ export async function runEpisode(input: RunInput): Promise<RunResult> {
       failureMessage,
     });
     const ledgerPath = await appendLedger(input.cwd, entry);
-    log(`Ledger: ${ledgerPath}`);
+    if (outcome === "finished" || voiceError) log(`Ledger: ${ledgerPath}`);
   }
 }
 

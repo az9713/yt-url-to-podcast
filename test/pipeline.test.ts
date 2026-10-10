@@ -4,7 +4,7 @@ import { inputBudgetChars } from "../src/budget.ts";
 import { chunkText } from "../src/chunk.ts";
 import { renderHtml } from "../src/html.ts";
 import { extractJson } from "../src/json.ts";
-import { copiedSentences } from "../src/overlap.ts";
+import { copiedSentences, prepareSpeech } from "../src/overlap.ts";
 import { pickSubtitle, vttToText } from "../src/vtt.ts";
 import { routeVoice, scriptToSegments } from "../src/voices.ts";
 import { videoIdFromUrl } from "../src/youtube.ts";
@@ -58,6 +58,14 @@ test("subtitle choice prefers the video language", () => {
   assert.equal(pickSubtitle([], "en"), null);
 });
 
+test("a leftover recited sentence is removed and the rest of the script stays", () => {
+  const script = `--- chapter: Start ---\n${VERBATIM}\nPicture a loop of hot salt leaving the core.`;
+  const kept = prepareSpeech(script, VERBATIM).script;
+  assert.match(kept, /chapter: Start/);
+  assert.match(kept, /Picture a loop of hot salt/);
+  assert.doesNotMatch(kept, /molten salt to move heat/);
+});
+
 test("a verbatim sentence and a one-word edit are recitation; a retelling is not", () => {
   const html = `How the core is cooled. ${VERBATIM} Hello.`;
   assert.deepEqual(copiedSentences(html, VERBATIM), [VERBATIM]);
@@ -69,6 +77,14 @@ test("voice routing keeps Kokoro for English and Chatterbox for Korean", () => {
   assert.deepEqual(routeVoice("en-US"), { engine: "kokoro", langCode: "a", voice: "af_heart" });
   assert.deepEqual(routeVoice("ko"), { engine: "chatterbox", languageId: "ko" });
   assert.throws(() => routeVoice("th"), /No publishable local voice/);
+});
+
+test("a markdown rule is not sent to the voice", () => {
+  const segments = scriptToSegments("The offer lasted a year.\n---\nApplications then surged.", 500);
+  assert.deepEqual(
+    segments.map((segment) => segment.text),
+    ["The offer lasted a year.", "Applications then surged."],
+  );
 });
 
 test("chapter markers are not spoken", () => {

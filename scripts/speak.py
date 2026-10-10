@@ -39,6 +39,10 @@ def write_wav(path: Path, audio: np.ndarray, sample_rate: int) -> None:
     sf.write(path, samples, sample_rate)
 
 
+def speakable(text: str) -> bool:
+    return any(character.isalpha() or character.isdigit() for character in text)
+
+
 def speak_kokoro(segments: list[dict], out: Path, lang_code: str, voice: str) -> None:
     find_espeak()
     try:
@@ -51,12 +55,18 @@ def speak_kokoro(segments: list[dict], out: Path, lang_code: str, voice: str) ->
     for index, segment in enumerate(segments):
         dest = out / f"part-{index:04d}.wav"
         if dest.exists() and dest.stat().st_size > 0:
+            print(f"spoke {index + 1}/{len(segments)}", file=sys.stderr, flush=True)
+            continue
+        text = str(segment.get("text") or "").strip()
+        if not speakable(text):
+            print(f"skipped {index + 1}/{len(segments)}", file=sys.stderr, flush=True)
             continue
         chunks = []
-        for _graphemes, _phonemes, audio in pipeline(segment["text"], voice=voice):
+        for _graphemes, _phonemes, audio in pipeline(text, voice=voice):
             chunks.append(np.asarray(audio, dtype=np.float32))
         if not chunks:
-            raise SystemExit(f"Kokoro returned no audio for segment {index}")
+            print(f"skipped {index + 1}/{len(segments)}", file=sys.stderr, flush=True)
+            continue
         write_wav(dest, np.concatenate(chunks), 24000)
         print(f"spoke {index + 1}/{len(segments)}", file=sys.stderr, flush=True)
 
@@ -77,9 +87,17 @@ def speak_chatterbox(segments: list[dict], out: Path, language_id: str) -> None:
     for index, segment in enumerate(segments):
         dest = out / f"part-{index:04d}.wav"
         if dest.exists() and dest.stat().st_size > 0:
+            print(f"spoke {index + 1}/{len(segments)}", file=sys.stderr, flush=True)
             continue
-        wav = model.generate(segment["text"], language_id=language_id)
+        text = str(segment.get("text") or "").strip()
+        if not speakable(text):
+            print(f"skipped {index + 1}/{len(segments)}", file=sys.stderr, flush=True)
+            continue
+        wav = model.generate(text, language_id=language_id)
         samples = wav.squeeze().detach().cpu().numpy() if hasattr(wav, "detach") else np.asarray(wav)
+        if getattr(samples, "size", 0) == 0:
+            print(f"skipped {index + 1}/{len(segments)}", file=sys.stderr, flush=True)
+            continue
         write_wav(dest, samples, int(model.sr))
         print(f"spoke {index + 1}/{len(segments)}", file=sys.stderr, flush=True)
 

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Make a podcast from a screenshot</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; background: #0f172a; color: #e2e8f0; font: 1rem/1.55 "Segoe UI", system-ui, sans-serif; }
+  main { max-width: 40rem; margin: 0 auto; padding: 2.5rem 1.1rem 4rem; }
+  h1 { font-size: 1.7rem; margin: 0 0 0.4rem; }
+  a { color: #2dd4bf; }
+  p, li { color: #cbd5e1; }
+  .drop { margin: 1.25rem 0; border: 1px dashed #64748b; border-radius: 12px; background: #1e293b; min-height: 11rem; display: grid; place-items: center; text-align: center; padding: 1rem; }
+  .drop.hot { border-color: #2dd4bf; }
+  .drop img { max-width: 100%; max-height: 14rem; border-radius: 8px; }
+  button { background: #fb923c; color: #1c1917; border: 0; border-radius: 8px; padding: 0.65rem 1rem; font: inherit; font-weight: 650; cursor: pointer; }
+  #ask { margin: 1.2rem 0; padding: 1rem; border: 2px solid #fb923c; border-radius: 12px; background: #1c1917; }
+  #ask h2 { margin: 0 0 0.4rem; }
+  button.choice { background: #fb923c; color: #1c1917; display: block; width: 100%; text-align: left; margin: 0.5rem 0; }
+  button:disabled { opacity: 0.55; cursor: wait; }
+  #log { font-family: ui-monospace, Consolas, monospace; font-size: 0.82rem; white-space: pre-wrap; background: #020617; border-radius: 8px; padding: 0.8rem; min-height: 6rem; }
+  audio { width: 100%; margin-top: 0.8rem; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<main>
+<h1>Make a podcast from a screenshot</h1>
+<p>Drop a picture of the YouTube page, or paste one. The title or the address bar needs to be visible. You do not paste a URL or a transcript.</p>
+<p><a href="/library">Finished episodes</a> · <a href="/ledger.html">Ledger</a></p>
+<div class="drop" id="drop">
+  <div>
+    <p id="hint">Drop a screenshot here, or paste with Ctrl+V.</p>
+    <img id="preview" class="hidden" alt="The screenshot you chose">
+    <p><button type="button" id="file">Choose a file</button></p>
+    <input id="picker" class="hidden" type="file" accept="image/png,image/jpeg,image/webp">
+  </div>
+</div>
+<button type="button" id="go" disabled>Create the podcast</button>
+<section id="ask" class="hidden">
+  <h2>Which video is this?</h2>
+  <p id="ask-why"></p>
+  <div id="choices"></div>
+</section>
+<h2 id="status">Waiting for a screenshot</h2>
+<div id="log">Waiting for a screenshot.</div>
+<section id="result" class="hidden">
+  <h2 id="done-title">Episode</h2>
+  <audio id="player" controls></audio>
+  <p><a id="summary" href="">HTML summary</a></p>
+</section>
+</main>
+<script>
+const drop = document.querySelector("#drop");
+const preview = document.querySelector("#preview");
+const hint = document.querySelector("#hint");
+const go = document.querySelector("#go");
+const statusLine = document.querySelector("#status");
+const log = document.querySelector("#log");
+const ask = document.querySelector("#ask");
+const askWhy = document.querySelector("#ask-why");
+const choices = document.querySelector("#choices");
+const result = document.querySelector("#result");
+const player = document.querySelector("#player");
+const summary = document.querySelector("#summary");
+let image = null;
+
+function setImage(file) {
+  if (!file || !file.type.startsWith("image/")) return;
+  image = file;
+  preview.src = URL.createObjectURL(file);
+  preview.classList.remove("hidden");
+  hint.textContent = file.name || "Screenshot ready";
+  go.disabled = false;
+  ask.classList.add("hidden");
+  choices.replaceChildren();
+}
+
+drop.addEventListener("dragover", (event) => { event.preventDefault(); drop.classList.add("hot"); });
+drop.addEventListener("dragleave", () => drop.classList.remove("hot"));
+drop.addEventListener("drop", (event) => {
+  event.preventDefault();
+  drop.classList.remove("hot");
+  setImage(event.dataTransfer.files[0]);
+});
+document.querySelector("#file").addEventListener("click", () => document.querySelector("#picker").click());
+document.querySelector("#picker").addEventListener("change", (event) => setImage(event.target.files[0]));
+document.addEventListener("paste", (event) => {
+  const items = event.clipboardData && event.clipboardData.items;
+  if (!items) return;
+  for (const item of items) {
+    if (item.type.startsWith("image/")) setImage(item.getAsFile());
+  }
+});
+
+function write(line) {
+  statusLine.textContent = line;
+  log.textContent += (log.textContent.endsWith("\n") || log.textContent === "" ? "" : "\n") + line + "\n";
+}
+
+function watch(jobId) {
+  const source = new EventSource("/api/jobs/" + jobId);
+  const seen = new Set();
+  function take(event, writeLine) {
+    if (seen.has(event.lastEventId)) return;
+    seen.add(event.lastEventId);
+    writeLine(JSON.parse(event.data));
+  }
+  source.addEventListener("log", (event) => take(event, (data) => write(data.message)));
+  source.addEventListener("done", (event) => take(event, (data) => {
+    source.close();
+    go.disabled = false;
+    const id = (data.htmlPath || "").match(/episodes[\\/]([^\\/]+)/);
+    if (!id || !data.episodePath) {
+      write(data.voiceError || "The page was written. The audio was not.");
+      return;
+    }
+    result.classList.remove("hidden");
+    player.src = "/episodes/" + id[1] + "/episode.m4a";
+    summary.href = "/episodes/" + id[1] + "/summary.html";
+    write("Done.");
+  }));
+  source.addEventListener("fail", (event) => take(event, (data) => {
+    write("Stopped. " + data.message);
+    source.close();
+    go.classList.remove("hidden");
+    go.disabled = false;
+    ask.classList.add("hidden");
+  }));
+}
+
+function clock(seconds) {
+  if (seconds == null) return "";
+  const minutes = Math.floor(seconds / 60);
+  const remain = Math.round(seconds % 60);
+  return minutes + ":" + String(remain).padStart(2, "0");
+}
+
+function showChoices(resolution) {
+  choices.replaceChildren();
+  askWhy.textContent = resolution.question || "More than one upload matches this screenshot. Which one should become the podcast?";
+  ask.classList.remove("hidden");
+  go.classList.add("hidden");
+  ask.scrollIntoView({ behavior: "smooth", block: "center" });
+  for (const hit of resolution.candidates) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "choice";
+    const length = clock(hit.duration);
+    button.textContent = (hit.channel || "Unknown channel") + (length ? " · " + length : "") + " — " + hit.title;
+    button.addEventListener("click", async () => {
+      ask.classList.add("hidden");
+      choices.replaceChildren();
+      go.disabled = true;
+      log.textContent = "Using " + (hit.channel || hit.title) + ".\n";
+      const response = await fetch("/api/start", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ videoId: hit.id }),
+      });
+      const payload = await response.json();
+      if (!response.ok) {
+        write(payload.error || "Could not start");
+        go.disabled = false;
+        return;
+      }
+      watch(payload.jobId);
+    });
+    choices.append(button);
+  }
+}
+
+go.addEventListener("click", async () => {
+  if (!image) return;
+  go.disabled = true;
+  result.classList.add("hidden");
+  log.textContent = "Reading the screenshot.\n";
+  const payloadImage = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const match = String(reader.result).match(/^data:(.*?);base64,(.*)$/);
+      if (!match) reject(new Error("Could not read the screenshot"));
+      else resolve({ mediaType: match[1], imageBase64: match[2] });
+    };
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(image);
+  });
+  const response = await fetch("/api/screenshot", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(payloadImage),
+  });
+  const payload = await response.json();
+  if (!response.ok) {
+    write(payload.error || "Could not read the screenshot");
+    go.disabled = false;
+    return;
+  }
+  if (payload.status === "choose") {
+    write("Waiting for you to choose a video.");
+    showChoices(payload.resolution);
+    go.disabled = false;
+    return;
+  }
+  write("Matched " + (payload.resolution.title || payload.resolution.videoId));
+  watch(payload.jobId);
+});
+</script>
+</body>
+</html>

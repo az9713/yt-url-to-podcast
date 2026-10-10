@@ -72,6 +72,11 @@ export interface ScriptSegment {
 }
 
 const CHAPTER = /^---\s*chapter:\s*(.+?)\s*---$/i;
+const MARKDOWN_RULE = /^(?:---+|\*\*\*+|___+)$/;
+
+function isSpeakable(text: string): boolean {
+  return /\p{L}|\p{N}/u.test(text);
+}
 
 export function scriptToSegments(script: string, maxChars: number): ScriptSegment[] {
   if (maxChars < 1) throw new Error("maxChars must be positive");
@@ -81,7 +86,7 @@ export function scriptToSegments(script: string, maxChars: number): ScriptSegmen
     .replace(/\r\n/g, "\n")
     .split("\n")
     .map((line) => line.trim())
-    .filter((line) => line.length > 0 && !line.startsWith("```"));
+    .filter((line) => line.length > 0 && !line.startsWith("```") && !MARKDOWN_RULE.test(line));
 
   const pushPiece = (text: string) => {
     let rest = text.trim();
@@ -89,10 +94,10 @@ export function scriptToSegments(script: string, maxChars: number): ScriptSegmen
       let end = rest.lastIndexOf(" ", maxChars);
       if (end < maxChars * 0.5) end = maxChars;
       const piece = rest.slice(0, end).trim();
-      if (piece) segments.push({ text: piece, chapter });
+      if (isSpeakable(piece)) segments.push({ text: piece, chapter });
       rest = rest.slice(end).trim();
     }
-    if (rest) segments.push({ text: rest, chapter });
+    if (isSpeakable(rest)) segments.push({ text: rest, chapter });
   };
 
   for (const block of blocks) {

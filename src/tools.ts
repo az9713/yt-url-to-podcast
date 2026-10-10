@@ -1,15 +1,35 @@
 import { spawn } from "node:child_process";
+import { existsSync } from "node:fs";
 import { access, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+
+const wingetLinks = path.join(process.env.LOCALAPPDATA ?? "", "Microsoft", "WinGet", "Links");
+if (wingetLinks && existsSync(path.join(wingetLinks, "ffprobe.exe"))) {
+  const currentPath = process.env.PATH ?? "";
+  if (!currentPath.toLowerCase().includes(wingetLinks.toLowerCase())) {
+    process.env.PATH = `${wingetLinks}${path.delimiter}${currentPath}`;
+  }
+}
 
 export function pythonPath(packageRoot: string): string {
   return path.join(packageRoot, ".venv", "Scripts", "python.exe");
 }
 
+function usefulError(stderr: string, stdout: string): string {
+  const lines = `${stderr}\n${stdout}`
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+    .filter((line) => !line.startsWith("Warning:"))
+    .filter((line) => !line.includes("UserWarning") && !line.includes("FutureWarning"))
+    .filter((line) => !line.includes("site-packages") && !line.startsWith("warnings.warn"));
+  return lines.at(-1) || "The command failed.";
+}
+
 export async function runProcess(
   command: string,
   args: string[],
-  options: { cwd: string; signal?: AbortSignal },
+  options: { cwd: string; signal?: AbortSignal; onLine?: (line: string) => void },
 ): Promise<{ stdout: string; stderr: string }> {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, {
@@ -19,6 +39,15 @@ export async function runProcess(
     });
     let stdout = "";
     let stderr = "";
+    let pending = "";
+    const take = (chunk: string) => {
+      pending += chunk;
+      const parts = pending.split(/\r?\n/);
+      pending = parts.pop() ?? "";
+      for (const line of parts) {
+        if (line.trim()) options.onLine?.(line.trim());
+      }
+    };
     child.stdout.setEncoding("utf8");
     child.stderr.setEncoding("utf8");
     child.stdout.on("data", (chunk: string) => {
@@ -27,11 +56,13 @@ export async function runProcess(
     child.stderr.on("data", (chunk: string) => {
       stderr += chunk;
       process.stderr.write(chunk);
+      take(chunk);
     });
     child.on("error", reject);
     child.on("close", (code) => {
+      if (pending.trim()) options.onLine?.(pending.trim());
       if (code === 0) resolve({ stdout, stderr });
-      else reject(new Error(`${path.basename(command)} exited ${code}\n${stderr || stdout}`.trim()));
+      else reject(new Error(usefulError(stderr, stdout)));
     });
   });
 }
@@ -92,7 +123,12 @@ export interface SpeakRequest {
   outDir: string;
 }
 
-export async function speak(packageRoot: string, request: SpeakRequest, signal?: AbortSignal): Promise<void> {
+export async function speak(
+  packageRoot: string,
+  request: SpeakRequest,
+  signal?: AbortSignal,
+  onLine?: (line: string) => void,
+): Promise<void> {
   const python = pythonPath(packageRoot);
   const args = [
     path.join(packageRoot, "scripts", "speak.py"),
@@ -106,7 +142,7 @@ export async function speak(packageRoot: string, request: SpeakRequest, signal?:
   if (request.langCode) args.push("--lang-code", request.langCode);
   if (request.voice) args.push("--voice", request.voice);
   if (request.languageId) args.push("--language-id", request.languageId);
-  await runProcess(python, args, { cwd: request.outDir, signal });
+  await runProcess(python, args, { cwd: request.outDir, signal, onLine });
 }
 
 export async function probeDuration(file: string, signal?: AbortSignal): Promise<number> {
